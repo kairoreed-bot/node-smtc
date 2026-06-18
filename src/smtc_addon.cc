@@ -157,67 +157,68 @@ static LRESULT CALLBACK SmtcWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
         std::unique_ptr<SmtcOpData> data(reinterpret_cast<SmtcOpData*>(lParam));
         try {
             switch (data->op) {
-            case SmtcOp::SetArtist:
-                { std::lock_guard<std::mutex> lk(g_metaMutex); g_meta.artist = data->str; }
-                ApplyAllMeta();
-                break;
-            case SmtcOp::SetAlbumArtist:
-                { std::lock_guard<std::mutex> lk(g_metaMutex); g_meta.albumArtist = data->str; }
-                ApplyAllMeta();
-                break;
-            case SmtcOp::SetTitle:
-                { std::lock_guard<std::mutex> lk(g_metaMutex); g_meta.title = data->str; }
-                ApplyAllMeta();
-                break;
-            case SmtcOp::SetAlbumTitle:
-                { std::lock_guard<std::mutex> lk(g_metaMutex); g_meta.albumTitle = data->str; }
-                ApplyAllMeta();
-                break;
-            case SmtcOp::SetThumbnail:
-                { std::lock_guard<std::mutex> lk(g_metaMutex); g_meta.thumbnailPath = data->str; }
-                ApplyAllMeta();
-                break;
-            case SmtcOp::SetShuffle:
-                if (g_controls) g_controls.ShuffleEnabled(data->shuffle);
-                break;
-            case SmtcOp::SetAutoRepeat: {
-                auto m = wm::MediaPlaybackAutoRepeatMode::None;
-                if (data->repeat == 1)      m = wm::MediaPlaybackAutoRepeatMode::Track;
-                else if (data->repeat == 2) m = wm::MediaPlaybackAutoRepeatMode::List;
-                if (g_controls) g_controls.AutoRepeatMode(m);
-                break;
-            }
-            case SmtcOp::SetStartTime:
-                { std::lock_guard<std::mutex> lk(g_timelineMutex); g_timeline.startTime = data->timelineMs; }
-                ApplyAllTimeline();
-                break;
-            case SmtcOp::SetMinSeekTime:
-                { std::lock_guard<std::mutex> lk(g_timelineMutex); g_timeline.minSeekTime = data->timelineMs; }
-                ApplyAllTimeline();
-                break;
-            case SmtcOp::SetPosition:
-                { std::lock_guard<std::mutex> lk(g_timelineMutex); g_timeline.position = data->timelineMs; }
-                ApplyAllTimeline();
-                break;
-            case SmtcOp::SetMaxSeekTime:
-                { std::lock_guard<std::mutex> lk(g_timelineMutex); g_timeline.maxSeekTime = data->timelineMs; }
-                ApplyAllTimeline();
-                break;
-            case SmtcOp::SetEndTime:
-                { std::lock_guard<std::mutex> lk(g_timelineMutex); g_timeline.endTime = data->timelineMs; }
-                ApplyAllTimeline();
-                break;
-            case SmtcOp::SetPlaybackStatus: {
-                auto s = wm::MediaPlaybackStatus::Playing;
-                switch (data->status) {
-                case 1: s = wm::MediaPlaybackStatus::Paused;   break;
-                case 2: s = wm::MediaPlaybackStatus::Stopped;  break;
-                case 3: s = wm::MediaPlaybackStatus::Changing; break;
-                case 4: s = wm::MediaPlaybackStatus::Closed;   break;
-                default: break; // 0 = Playing
+                case SmtcOp::SetArtist:
+                    { std::lock_guard<std::mutex> lk(g_metaMutex); g_meta.artist = data->str; }
+                    ApplyAllMeta();
+                    break;
+                case SmtcOp::SetAlbumArtist:
+                    { std::lock_guard<std::mutex> lk(g_metaMutex); g_meta.albumArtist = data->str; }
+                    ApplyAllMeta();
+                    break;
+                case SmtcOp::SetTitle:
+                    { std::lock_guard<std::mutex> lk(g_metaMutex); g_meta.title = data->str; }
+                    ApplyAllMeta();
+                    break;
+                case SmtcOp::SetAlbumTitle:
+                    { std::lock_guard<std::mutex> lk(g_metaMutex); g_meta.albumTitle = data->str; }
+                    ApplyAllMeta();
+                    break;
+                case SmtcOp::SetThumbnail:
+                    { std::lock_guard<std::mutex> lk(g_metaMutex); g_meta.thumbnailPath = data->str; }
+                    ApplyAllMeta();
+                    break;
+                case SmtcOp::SetShuffle:
+                    if (g_controls) g_controls.ShuffleEnabled(data->shuffle);
+                    break;
+                case SmtcOp::SetAutoRepeat: {
+                    auto m = wm::MediaPlaybackAutoRepeatMode::None;
+                    if (data->repeat == 1)      m = wm::MediaPlaybackAutoRepeatMode::Track;
+                    else if (data->repeat == 2) m = wm::MediaPlaybackAutoRepeatMode::List;
+                    if (g_controls) g_controls.AutoRepeatMode(m);
+                    break;
                 }
-                if (g_controls) g_controls.PlaybackStatus(s);
-                break;
+                case SmtcOp::SetStartTime:
+                    { std::lock_guard<std::mutex> lk(g_timelineMutex); g_timeline.startTime = data->timelineMs; }
+                    ApplyAllTimeline();
+                    break;
+                case SmtcOp::SetMinSeekTime:
+                    { std::lock_guard<std::mutex> lk(g_timelineMutex); g_timeline.minSeekTime = data->timelineMs; }
+                    ApplyAllTimeline();
+                    break;
+                case SmtcOp::SetPosition:
+                    { std::lock_guard<std::mutex> lk(g_timelineMutex); g_timeline.position = data->timelineMs; }
+                    ApplyAllTimeline();
+                    break;
+                case SmtcOp::SetMaxSeekTime:
+                    { std::lock_guard<std::mutex> lk(g_timelineMutex); g_timeline.maxSeekTime = data->timelineMs; }
+                    ApplyAllTimeline();
+                    break;
+                case SmtcOp::SetEndTime:
+                    { std::lock_guard<std::mutex> lk(g_timelineMutex); g_timeline.endTime = data->timelineMs; }
+                    ApplyAllTimeline();
+                    break;
+                case SmtcOp::SetPlaybackStatus: {
+                    auto s = wm::MediaPlaybackStatus::Playing;
+                    switch (data->status) {
+                    case 1: s = wm::MediaPlaybackStatus::Paused;   break;
+                    case 2: s = wm::MediaPlaybackStatus::Stopped;  break;
+                    case 3: s = wm::MediaPlaybackStatus::Changing; break;
+                    case 4: s = wm::MediaPlaybackStatus::Closed;   break;
+                    default: break; // 0 = Playing
+                    }
+                    if (g_controls) g_controls.PlaybackStatus(s);
+                    break;
+                }
             }
         } catch (...) {}
         return 0;
