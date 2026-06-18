@@ -42,6 +42,9 @@ class SMTCPlayer extends EventEmitter {
   /** @param {string} path — filesystem path to image file */
   setThumbnail(path)     { native.setThumbnail(path); }
 
+  /** @param {string} id — app identity string shown in SMTC UI */
+  setAppMediaId(id)      { native.setAppMediaId(id); }
+
   /** @param {boolean} enabled */
   setShuffle(enabled)    { native.setShuffle(enabled); }
 

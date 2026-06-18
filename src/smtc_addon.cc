@@ -45,7 +45,8 @@ static winrt::event_token           g_repeatToken;
 static winrt::event_token           g_positionToken;
 static std::mutex                   g_controlsMutex;
 static Napi::ThreadSafeFunction     g_eventTsfn;
-static std::wstring                 g_wavPath;  // temp WAV for cleanup
+static std::wstring                 g_wavPath;     // temp WAV for cleanup
+static std::wstring                 g_appMediaId;  // caller-defined app identity
 
 // ============================================================================
 // STA dispatch — setters called from JS thread, SMTC lives on STA thread.
@@ -67,6 +68,7 @@ enum class SmtcOp : WPARAM {
     SetMaxSeekTime   = 11,
     SetEndTime       = 12,
     SetPlaybackStatus = 13,
+    SetAppMediaId    = 14,
 };
 
 struct SmtcOpData {
@@ -79,7 +81,7 @@ struct SmtcOpData {
         int     status;     // OP_SetPlaybackStatus (0=Playing,1=Paused,2=Stopped,3=Changing,4=Closed)
     };
     ~SmtcOpData() {
-        if (static_cast<int>(op) >= 1 && static_cast<int>(op) <= 5) delete[] str;
+        if ((static_cast<int>(op) >= 1 && static_cast<int>(op) <= 5) || op == SmtcOp::SetAppMediaId) delete[] str;
     }
 };
 
@@ -217,6 +219,15 @@ static LRESULT CALLBACK SmtcWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
                     default: break; // 0 = Playing
                     }
                     if (g_controls) g_controls.PlaybackStatus(s);
+                    break;
+                }
+                case SmtcOp::SetAppMediaId: {
+                    g_appMediaId = data->str;
+                    auto u = GetUpdater();
+                    if (u) {
+                        u.AppMediaId(winrt::hstring(g_appMediaId));
+                        u.Update();
+                    }
                     break;
                 }
             }
@@ -365,7 +376,7 @@ static void MessageThreadProc() {
 
         // 4. Set metadata
         auto updater = ctrl.DisplayUpdater();
-        updater.AppMediaId(L"NodeSMTCPlayer");
+        updater.AppMediaId(winrt::hstring(g_appMediaId));
         updater.Type(wm::MediaPlaybackType::Music);
         updater.Update();
 
@@ -577,6 +588,19 @@ static Napi::Value SetThumbnail(const Napi::CallbackInfo& info) {
 }
 
 // ============================================================================
+// N-API: setAppMediaId(id)
+// ============================================================================
+static Napi::Value SetAppMediaId(const Napi::CallbackInfo& info) {
+    if (info.Length() < 1 || !info[0].IsString()) return info.Env().Undefined();
+    auto data = new SmtcOpData{SmtcOp::SetAppMediaId};
+    auto w = Utf8ToWide(info[0].As<Napi::String>().Utf8Value());
+    data->str = new wchar_t[w.size() + 1];
+    wcscpy_s(data->str, w.size() + 1, w.c_str());
+    PostSmtcOp(data);
+    return info.Env().Undefined();
+}
+
+// ============================================================================
 // N-API: setShuffle(enabled)
 // ============================================================================
 static Napi::Value SetShuffle(const Napi::CallbackInfo& info) {
@@ -671,6 +695,7 @@ static Napi::Object Init(Napi::Env env, Napi::Object exports) {
     exports.Set("setTitle",         Napi::Function::New(env, SetTitle));
     exports.Set("setAlbumTitle",    Napi::Function::New(env, SetAlbumTitle));
     exports.Set("setThumbnail",     Napi::Function::New(env, SetThumbnail));
+    exports.Set("setAppMediaId",    Napi::Function::New(env, SetAppMediaId));
     exports.Set("setShuffle",       Napi::Function::New(env, SetShuffle));
     exports.Set("setAutoRepeat",    Napi::Function::New(env, SetAutoRepeat));
     exports.Set("setStartTime",     Napi::Function::New(env, SetStartTime));

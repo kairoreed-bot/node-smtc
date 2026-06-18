@@ -26,6 +26,9 @@ declare class SMTCPlayer extends EventEmitter {
     /** Set thumbnail from filesystem path. */
     setThumbnail(path: string): void;
 
+    /** Set the app identity string shown in the SMTC UI (e.g. "com.michei69.pear-desktop"). */
+    setAppMediaId(id: string): void;
+
     /** Toggle shuffle. */
     setShuffle(enabled: boolean): void;
 
