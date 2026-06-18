@@ -1,0 +1,24 @@
+{
+  "name": "smtc-player",
+  "version": "1.0.0",
+  "description": "Node.js native addon for Windows System Media Transport Controls (SMTC) via WinRT",
+  "license": "ISC",
+  "author": {
+    "name": "michei69",
+    "email": "hey@michei.dev",
+    "url": "https://michei.dev"
+  },
+  "type": "module",
+  "main": "index.js",
+  "gypfile": true,
+  "scripts": {
+    "dev": "node index.js",
+    "install": "node-gyp rebuild",
+    "configure": "node-gyp configure",
+    "build": "node-gyp build",
+    "rebuild": "node-gyp rebuild"
+  },
+  "dependencies": {
+    "node-addon-api": "^8.0.0"
+  }
+}

@@ -1,0 +1,10 @@
+build/
+node_modules/
+.vscode/
+*.obj
+*.pdb
+*.ipdb
+*.iobj
+*.ilk
+*.exp
+*.lib
