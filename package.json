@@ -1,5 +1,5 @@
 {
-  "name": "smtc-player",
+  "name": "node-smtc",
   "version": "1.0.0",
   "description": "Node.js native addon for Windows System Media Transport Controls (SMTC) via WinRT",
   "license": "ISC",
